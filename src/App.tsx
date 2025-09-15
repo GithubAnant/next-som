@@ -12,10 +12,12 @@ const ProjectNext: React.FC = () => {
   const [showIntegrations, setShowIntegrations] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState(false);
+  const [showOpenRouterModal, setShowOpenRouterModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState("");
   const [githubToken, setGithubToken] = useState("");
+  const [openRouterKey, setOpenRouterKey] = useState("");
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [selectedModel, setSelectedModel] = useState("Meta Llama 405B");
 
@@ -39,10 +41,12 @@ const ProjectNext: React.FC = () => {
     { name: "Slack", icon: "slack", color: "#4A154B", connected: false },
     { name: "Stripe", icon: "stripe", color: "#635BFF", connected: false },
     { name: "GitHub", icon: "github", color: "#181717", connected: false },
+    { name: "OpenRouter", icon: "zap", color: "#FF6B35", connected: false },
     { name: "Spotify", icon: "spotify", color: "#1DB954", connected: false },
   ];
 
-  const apiKey = import.meta.env.VITE_OPENROUTER_KEY;
+  // Use local state for API key, fallback to environment variable
+  const apiKey = (openRouterKey && openRouterKey.trim()) || import.meta.env.VITE_OPENROUTER_KEY;
 
 
   const handleModelSelect = (model: string) => {
@@ -59,6 +63,9 @@ const ProjectNext: React.FC = () => {
   const toggleIntegration = (index: number) => {
     if (integrations[index].name === "GitHub") {
       setShowGitHubModal(true);
+      setShowIntegrations(false);
+    } else if (integrations[index].name === "OpenRouter") {
+      setShowOpenRouterModal(true);
       setShowIntegrations(false);
     } else {
       console.log(`Toggle integration: ${integrations[index].name}`);
@@ -182,6 +189,12 @@ const cleanHeaderValue = (value: string): string => {
 // };
 const handleSearch = async (): Promise<void> => {
   if (!searchValue.trim()) return;
+
+  // Check if API key is available
+  if (!apiKey) {
+    setResponse("Please configure your OpenRouter API key first. Click the OpenRouter integration to set it up.");
+    return;
+  }
 
   setIsLoading(true);
   setResponse("");
@@ -884,7 +897,15 @@ const viewRepo = async (parsedResponse: AIResponse): Promise<void> => {
                   {/* GitHub Repo Creation Button */}
                   {isRepoResponse && !repoCreated && (
                     <button
-                      onClick={() => githubToken ? createGitHubRepo() : setShowGitHubModal(true)}
+                      onClick={() => {
+                        if (!apiKey) {
+                          setShowOpenRouterModal(true);
+                        } else if (!githubToken) {
+                          setShowGitHubModal(true);
+                        } else {
+                          createGitHubRepo();
+                        }
+                      }}
                       disabled={isLoading}
                       className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 mb-2"
                     >
@@ -947,6 +968,61 @@ const viewRepo = async (parsedResponse: AIResponse): Promise<void> => {
           </div>
         )}
       </div>
+
+      {/* OpenRouter Setup Modal */}
+      {showOpenRouterModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-md rounded-2xl p-6 bg-white">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-2">
+                <Zap className="w-6 h-6 text-orange-500" />
+                <h3 className="text-xl font-medium">Connect OpenRouter</h3>
+              </div>
+              <button
+                onClick={() => setShowOpenRouterModal(false)}
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  OpenRouter API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="sk-or-v1-xxxxxxxxxxxx"
+                  value={openRouterKey}
+                  onChange={(e) => setOpenRouterKey(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div className="bg-orange-50 p-3 rounded-lg">
+                <p className="text-sm text-orange-800">
+                  <strong>To get your API key:</strong>
+                </p>
+                <ol className="text-sm text-orange-700 mt-1 space-y-1">
+                  <li>1. Go to <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer" className="underline">OpenRouter.ai</a></li>
+                  <li>2. Sign up or log in to your account</li>
+                  <li>3. Navigate to API Keys section</li>
+                  <li>4. Create a new API key</li>
+                </ol>
+              </div>
+              
+              <button
+                onClick={() => setShowOpenRouterModal(false)}
+                disabled={!openRouterKey}
+                className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Connect OpenRouter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GitHub Setup Modal */}
       {showGitHubModal && (
@@ -1024,6 +1100,8 @@ const viewRepo = async (parsedResponse: AIResponse): Promise<void> => {
                   <div className="flex items-center space-x-3">
                     {integration.name === "GitHub" ? (
                       <Github className="w-6 h-6" />
+                    ) : integration.name === "OpenRouter" ? (
+                      <Zap className="w-6 h-6 text-orange-500" />
                     ) : (
                       <div className="w-6 h-6 rounded bg-gray-300"></div>
                     )}

@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   plugins: [react()],
-  base: command === 'serve' ? '/' : '/project-next/',
+  base: '/',
   assetsInclude: ['**/*.svg'],
   resolve: {
     alias: {
@@ -11,4 +11,4 @@ export default defineConfig(({ command }) => ({
       '@assets': '/src/assets'
     }
   }
-}))
+})
