@@ -33,16 +33,8 @@ const ProjectNext: React.FC = () => {
 
   // Mock integrations - using Lucide icons as fallback
   const integrations: Integration[] = [
-    { name: "Gmail", icon: "gmail", color: "#EA4335", connected: true },
-    { name: "Docs", icon: "docs", color: "#4285F4", connected: true },
-    { name: "Sheets", icon: "sheets", color: "#34A853", connected: false },
-    { name: "Drive", icon: "drive", color: "#4285F4", connected: true },
-    { name: "Notion", icon: "notion", color: "#000000", connected: false },
-    { name: "Slack", icon: "slack", color: "#4A154B", connected: false },
-    { name: "Stripe", icon: "stripe", color: "#635BFF", connected: false },
     { name: "GitHub", icon: "github", color: "#181717", connected: false },
     { name: "OpenRouter", icon: "zap", color: "#FF6B35", connected: false },
-    { name: "Spotify", icon: "spotify", color: "#1DB954", connected: false },
   ];
 
   // Use local state for API key, fallback to environment variable
