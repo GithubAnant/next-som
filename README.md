@@ -25,8 +25,8 @@ Follow these steps to get the project running locally:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd project-next
+git clone https://github.com/GithubAnant/next-som.git
+cd next-som
 ```
 
 ### 2. Install Dependencies
@@ -119,7 +119,7 @@ The application will start and automatically open in your browser at `http://loc
 ## 📁 Project Structure
 
 ```
-project-next/
+next-som/
 ├── public/                 # Static assets
 ├── src/
 │   ├── assets/            # Icons and images
